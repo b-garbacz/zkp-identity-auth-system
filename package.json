@@ -1,0 +1,33 @@
+{
+  "name": "zkp-identity-auth-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next build && next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.12.1",
+    "@techstark/opencv-js": "^4.9.0-release.3",
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
+    "next": "14.2.1",
+    "next-auth": "^4.24.7",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.1",
+    "postcss": "^8",
+    "prisma": "^5.12.1",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
