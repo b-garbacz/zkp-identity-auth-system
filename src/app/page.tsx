@@ -5,6 +5,7 @@ import cv from "@techstark/opencv-js";
 import { useEffect, useState } from "react";
 import { signIn, useSession, signOut } from "next-auth/react";
 import { processImages } from "@/servers/actions";
+import { convertToBase64, base64ToImageElement } from "@/servers/utils";
 
 export default function Home() {
   const { data } = useSession();
@@ -13,23 +14,6 @@ export default function Home() {
 
   const handleCreateEvidence = () => {
     setShowUploadFields(true);
-  };
-
-  const base64ToImageElement = async (
-    base64: string
-  ): Promise<HTMLImageElement> => {
-    const img = new Image();
-    img.src = base64;
-    return img;
-  };
-
-  const convertToBase64 = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => resolve(fileReader.result as string);
-      fileReader.onerror = (error) => reject(error);
-    });
   };
 
   const OnProcess = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,9 +31,6 @@ export default function Home() {
       const frontIDimage = await base64ToImageElement(frontIDBase64);
       const backIDimage = await base64ToImageElement(backIDBase64);
 
-      //console.log("Front ID Base64:", frontIDBase64);
-      //console.log("Back ID Base64:", backIDBase64);
-      //console.log("Processed data:", data);
       await processImages(frontIDimage, backIDimage);
     } catch (error) {
       console.error("Error processing files:", error);
