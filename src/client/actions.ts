@@ -2,7 +2,7 @@
 import cv, { CV_32F } from "@techstark/opencv-js";
 import { log } from "console";
 import { createWorker } from "tesseract.js";
-import * as RegexUtils from "@/utils/regex";
+//import * as RegexUtils from "@/utils/regex";
 
 export async function processImages(
   frontImage: HTMLImageElement,
@@ -111,3 +111,5 @@ async function recognizeTextFromImage(
     await worker.terminate();
   }
 }
+
+function getDataFromFrontID(text: string) {}

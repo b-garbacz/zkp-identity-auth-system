@@ -4,8 +4,8 @@ import Link from "next/link";
 import cv from "@techstark/opencv-js";
 import { useEffect, useState } from "react";
 import { signIn, useSession, signOut } from "next-auth/react";
-import { processImages } from "@/servers/actions";
-import { convertToBase64, base64ToImageElement } from "@/servers/utils";
+import { processImages } from "@/client/actions";
+import { convertToBase64, base64ToImageElement } from "@/client/base64";
 
 export default function Home() {
   const { data } = useSession();
