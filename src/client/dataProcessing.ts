@@ -2,12 +2,13 @@
 import cv, { CV_32F } from "@techstark/opencv-js";
 import { log } from "console";
 import { createWorker } from "tesseract.js";
-//import * as RegexUtils from "@/utils/regex";
 
+import { FrontID } from "./frontID";
+import { BackID } from "./backID";
 export async function processImages(
   frontImage: HTMLImageElement,
   backImage: HTMLImageElement
-) {
+): Promise<[HTMLCanvasElement, HTMLCanvasElement]> {
   let srcFront = cv.imread(frontImage);
   let srcBack = cv.imread(backImage);
   let frontMedianBlurDst = new cv.Mat();
@@ -23,9 +24,6 @@ export async function processImages(
   let backThreshold = new cv.Mat();
 
   //Denoising
-  //const ksize = 5;
-  //cv.medianBlur(srcFront, frontMedianBlurDst, ksize);
-  //cv.medianBlur(srcBack, backMedianBlurDst, ksize);
   let ksize = new cv.Size(5, 5);
   let sigmaX = 1.5;
   let sigmaY = 0.1;
@@ -78,12 +76,6 @@ export async function processImages(
   cv.imshow(canvasFront, frontThreshold);
   cv.imshow(canvasBack, backThreshold);
 
-  const frontIdText: string = await recognizeTextFromImage(canvasFront);
-  const backIdText: string = await recognizeTextFromImage(canvasBack);
-
-  console.log(frontIdText);
-  console.log(backIdText);
-
   srcFront.delete();
   srcBack.delete();
   frontMedianBlurDst.delete();
@@ -94,9 +86,10 @@ export async function processImages(
   backEqualizeHist.delete();
   frontThreshold.delete();
   backThreshold.delete();
+  return [canvasFront, canvasBack];
 }
 
-async function recognizeTextFromImage(
+export async function recognizeTextFromImage(
   image: HTMLCanvasElement
 ): Promise<string> {
   const worker = await createWorker("pol");
@@ -111,5 +104,3 @@ async function recognizeTextFromImage(
     await worker.terminate();
   }
 }
-
-function getDataFromFrontID(text: string) {}

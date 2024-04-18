@@ -1,5 +1,5 @@
 import * as textFormating from "./textFormating";
-class FrontID {
+export class FrontID {
   private surname: string | null;
   private givenNames: string | null;
   private familyName: string | null;
@@ -50,8 +50,26 @@ class FrontID {
     }
     this.dateOfBirth = textFormating.dateFormat(_dateOfBirth[0]);
   }
+  public getSurname(): string | null {
+    return this.surname;
+  }
 
-  serialization(): string {
+  public getGivenNames(): string | null {
+    return this.givenNames;
+  }
+
+  public getFamilyName(): string | null {
+    return this.familyName;
+  }
+
+  public getParentsName(): string | null {
+    return this.parentsName;
+  }
+
+  public getDateOfBirth(): Number | null {
+    return this.dateOfBirth;
+  }
+  public serialization(): string {
     return JSON.stringify(this);
   }
 }

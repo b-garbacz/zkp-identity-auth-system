@@ -1,6 +1,6 @@
 import * as textFormating from "./textFormating";
 
-class BackID {
+export class BackID {
   private dateOfIssue: Number | null;
   private expiryDate: Number | null;
   private personalNumber: string | null;
@@ -8,7 +8,6 @@ class BackID {
   private identityCardNumber: string | null;
   private surname: string | null;
   private givenNames: string | null;
-  //identityCardNumber: string | null;
 
   constructor(textORC?: string) {
     if (textORC === null || textORC === undefined) {
@@ -68,7 +67,35 @@ class BackID {
       );
     }
   }
-  serialization(): string {
+  public getDateOfIssue(): Number | null {
+    return this.dateOfIssue;
+  }
+
+  public getExpiryDate(): Number | null {
+    return this.expiryDate;
+  }
+
+  public getPersonalNumber(): string | null {
+    return this.personalNumber;
+  }
+
+  public getDateOfBirth(): Number | null {
+    return this.dateOfBirth;
+  }
+
+  public getIdentityCardNumber(): string | null {
+    return this.identityCardNumber;
+  }
+
+  public getSurname(): string | null {
+    return this.surname;
+  }
+
+  public getGivenNames(): string | null {
+    return this.givenNames;
+  }
+
+  public serialization(): string {
     return JSON.stringify(this);
   }
 }

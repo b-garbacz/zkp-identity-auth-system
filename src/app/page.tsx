@@ -4,8 +4,12 @@ import Link from "next/link";
 import cv from "@techstark/opencv-js";
 import { useEffect, useState } from "react";
 import { signIn, useSession, signOut } from "next-auth/react";
-import { processImages } from "@/client/actions";
+import { processImages, recognizeTextFromImage } from "@/client/dataProcessing";
 import { convertToBase64, base64ToImageElement } from "@/client/base64";
+import * as verification from "@/client/idVerification";
+
+import { FrontID } from "@/client/frontID";
+import { BackID } from "@/client/backID";
 
 export default function Home() {
   const { data } = useSession();
@@ -26,14 +30,30 @@ export default function Home() {
     const backFile = formData.get("backID") as File;
 
     try {
-      const frontIDBase64 = await convertToBase64(frontFile);
-      const backIDBase64 = await convertToBase64(backFile);
-      const frontIDimage = await base64ToImageElement(frontIDBase64);
-      const backIDimage = await base64ToImageElement(backIDBase64);
+      const frontIdBase64 = await convertToBase64(frontFile);
+      const backIdBase64 = await convertToBase64(backFile);
+      const frontIdimage = await base64ToImageElement(frontIdBase64);
+      const backIdimage = await base64ToImageElement(backIdBase64);
 
-      await processImages(frontIDimage, backIDimage);
+      const [canvasFront, canvasBack] = await processImages(
+        frontIdimage,
+        backIdimage
+      );
+
+      const frontIdText: string = await recognizeTextFromImage(canvasFront);
+      const backIdText: string = await recognizeTextFromImage(canvasBack);
+
+      const frontIdObject: FrontID = new FrontID(frontIdText);
+      const backIdObject: BackID = new BackID(backIdText);
+
+      console.log(frontIdObject.serialization());
+      console.log(backIdObject.serialization());
+
+      if (verification.verifyFrontIdAndBackId(frontIdObject, backIdObject)) {
+        throw new Error("Pictures of flow quality");
+      }
     } catch (error) {
-      console.error("Error processing files:", error);
+      console.error("Error processing files: ", error as string);
     }
   };
 

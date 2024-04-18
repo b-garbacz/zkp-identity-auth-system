@@ -2,7 +2,6 @@
 
 export function findDate(text: string | null): string[] | null {
   if (text === null) {
-    console.error("No text provided");
     return null;
   }
   const regex = /\b\d{2}\.\d{2}\.\d{4}\b/g;
@@ -16,7 +15,6 @@ export function findDataInRawText(
   label: string
 ): string | null {
   if (text === null) {
-    console.error("No text provided");
     return null;
   }
   const lines = text.split("\n");
@@ -32,7 +30,6 @@ export function findDataInRawText(
 
 export function stringNormalization(text: string | null): string | null {
   if (text === null) {
-    console.error("No text provided");
     return null;
   }
 
@@ -53,7 +50,6 @@ export function stringNormalizationParentsNames(
   text: string | null
 ): string | null {
   if (text === null) {
-    console.error("No text provided");
     return null;
   }
 
@@ -74,7 +70,6 @@ export function stringNormalizationParentsNames(
 
 export function getPersonalNumber(text: string | null): string | null {
   if (text === null) {
-    console.error("no text provided");
     return null;
   }
 
@@ -85,7 +80,6 @@ export function getPersonalNumber(text: string | null): string | null {
 
 export function getIdentityCardNumber(text: string | null): string | null {
   if (text === null) {
-    console.error("no text provided");
     return null;
   }
 
@@ -113,18 +107,16 @@ function parseDateFromDigits(digits: string): string {
 
   const year = yearPrefix + yearDigits;
 
-  return `${day}/${month}/${year}`;
+  return `${day}.${month}.${year}`;
 }
 
 export function getBirthsdayNumnerAndPersonalNumber(
   text: string | null
 ): [string, string] | null {
   if (text === null) {
-    console.error("no text provided");
     return null;
   }
   const lines = text.trim().split("\n");
-
   const line = lines[lines.length - 2];
   if (line) {
     const dateOfBirth = line.slice(0, 6);
@@ -137,7 +129,6 @@ export function getBirthsdayNumnerAndPersonalNumber(
 
 export function getNameAndSurname(text: string | null): string[] | null {
   if (text === null) {
-    console.error("no text provided");
     return null;
   }
   const lines = text.trim().split("\n");
@@ -155,10 +146,8 @@ export function getNameAndSurname(text: string | null): string[] | null {
 
 export function dateFormat(text: string | null): Number | null {
   if (text === null) {
-    console.error("no text provided");
     return null;
   }
-  //const changed = text.replace(/\./g, "/");
   const splited = text.split(".");
   const day = parseInt(splited[0], 10);
   const month = parseInt(splited[1], 10) - 1;
