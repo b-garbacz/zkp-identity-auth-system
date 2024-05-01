@@ -1,0 +1,17 @@
+{
+  "name": "age_verification_proof",
+  "collaborators": [
+    "bartigarbacz@gmail.com"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "age_verification_proof_bg.wasm",
+    "age_verification_proof.js",
+    "age_verification_proof.d.ts"
+  ],
+  "module": "age_verification_proof.js",
+  "types": "age_verification_proof.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
