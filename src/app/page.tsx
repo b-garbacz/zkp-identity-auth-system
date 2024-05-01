@@ -11,6 +11,12 @@ import * as verification from "@/client/idVerification";
 import { FrontID } from "@/client/frontID";
 import { BackID } from "@/client/backID";
 
+import dynamic from "next/dynamic";
+
+import init, {
+  age_proof_generation,
+} from "@/static/wasm/age_verification_proof";
+
 export default function Home() {
   const { data } = useSession();
   const [showUploadFields, setShowUploadFields] = useState(false);
@@ -19,6 +25,19 @@ export default function Home() {
   const handleCreateEvidence = () => {
     setShowUploadFields(true);
   };
+
+  useEffect(() => {
+    // (async () => {
+    //   const wasm = (await import("@/static/wasm/age_verification_proof"))
+    //     .default;
+
+    //   const { age_proof_generation } = wasm;
+
+    //   console.log(age_proof_generation);
+    // })();
+
+    console.log(age_proof_generation);
+  }, []);
 
   const OnProcess = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,6 +74,13 @@ export default function Home() {
     } catch (error) {
       console.error("Error processing files: ", error as string);
     }
+    const base64test: string =
+      "ewogICJzdXJuYW1lIjoiIE5BWldJU0tPIiwKICAiZ2l2ZW5OYW1lcyI6IiBJTUlFIiwKICAiZmFtaWx5TmFtZSI6IiBOQVpXSVNLTyIsCiAgInBhcmVudHNOYW1lIjoiVEVTVCBURVNUIiwKICAiZGF0ZU9mQmlydGgiOjg5NTUyODgwMCwKICAiZGF0ZU9mSXNzdWUiOjE0NjM5NTQ0MDAsCiAgImV4cGlyeURhdGUiOjE3Nzk0ODcyMDAsCiAgInBlcnNvbmFsTnVtYmVyIjoiMTExMTExMTExMTEiLAogICJpZGVudGl0eUNhcmROdW1iZXIiOiJDQ0M0NDQ0NDQiCn0=";
+
+    init().then(() => {
+      const res = age_proof_generation(base64test);
+      console.log(res);
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
