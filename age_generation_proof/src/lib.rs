@@ -10,13 +10,16 @@ use bellman::{
 
 use bls12_381::Bls12;
 use ff::PrimeField;
-use rand::{rngs::OsRng, thread_rng};
+use rand::Rng;
 use sha2::{Digest, Sha256};
 
 use serde::{Deserialize, Serialize};
 use base64::{engine::general_purpose::URL_SAFE as base64Engine, Engine as BaseEngine};
 use concat_arrays::concat_arrays;
 use wasm_bindgen::prelude::*;
+
+extern crate console_error_panic_hook;
+use std::panic;
 
 
 //Gadget sha256
@@ -242,7 +245,7 @@ impl UserDataProof {
 }
 #[wasm_bindgen]
 pub fn age_proof_generation(base64_data: &str) -> String {
-
+    panic::set_hook(Box::new(console_error_panic_hook::hook));
     let personal_info = match PersonalData::new(base64_data) {
         Ok(personal_data) => personal_data,
         Err(e) => {
@@ -256,7 +259,7 @@ pub fn age_proof_generation(base64_data: &str) -> String {
     let  expiry_date = i64_to_byte_array(personal_info.expiry_date);
     let  personal_number =  string_to_byte_11(personal_info.personal_number);
     let  identity_card_number =  string_to_byte_10(personal_info.identity_card_number);
-    let rng = &mut thread_rng();
+    let mut rng = rand::thread_rng();
 
 
     let params = {
@@ -266,7 +269,7 @@ pub fn age_proof_generation(base64_data: &str) -> String {
             personal_number: None, 
             identity_card_number: None, 
         };
-        groth16::generate_random_parameters::<Bls12, _, _>(c, rng).unwrap()
+        groth16::generate_random_parameters::<Bls12, _, _>(c, &mut rng).unwrap()
     };
     
     let c = AgeVerificationCircuit {
@@ -277,7 +280,7 @@ pub fn age_proof_generation(base64_data: &str) -> String {
 
     };
     
-    let proof = groth16::create_random_proof(c, &params, rng).unwrap();
+    let proof = groth16::create_random_proof(c, &params, &mut rng).unwrap();
 
     let mut proof_buffer = Vec::new();
     let _ = proof.write(&mut proof_buffer);

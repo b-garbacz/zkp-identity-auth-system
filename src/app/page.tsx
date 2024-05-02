@@ -13,9 +13,7 @@ import { BackID } from "@/client/backID";
 
 import dynamic from "next/dynamic";
 
-import init, {
-  age_proof_generation,
-} from "@/static/wasm/age_verification_proof";
+import init, { age_proof_generation } from "@/static/wasm/age_generation_proof";
 
 export default function Home() {
   const { data } = useSession();

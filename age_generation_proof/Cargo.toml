@@ -26,6 +26,7 @@ pairing = "0.23.0"
 byteorder = "1"
 concat-arrays = "0.1"
 wasm-bindgen = "0.2.92"
+console_error_panic_hook = "0.1.7"
 
 [lib.profile.release]
 crate-type = ["cdylib"]
