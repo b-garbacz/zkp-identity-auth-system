@@ -1,4 +1,3 @@
-
 use bellman::{
     gadgets::{
         boolean::{AllocatedBit, Boolean},
