@@ -25,7 +25,7 @@ export default function Home() {
     try {
       const email = data?.user?.email;
       const response = await fetch("/api/proof", {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },

@@ -2,7 +2,7 @@ import { prisma } from "@/services/prisma";
 import axios from "axios";
 
 //uzytkownik chce utworzyc proof
-export async function POST(request: Request) {
+export async function PUT(request: Request) {
   try {
     const { email, expiryDate, proofOfUser } = await request.json();
     const response = await axios.post("http://localhost:8080/verify_zkp", {
@@ -22,13 +22,13 @@ export async function POST(request: Request) {
       console.log("Proof created:", createdProof);
 
       return Response.json({
-        status: 200,
+        status: 201,
         body: JSON.stringify({ verified: true }),
       });
     } else {
       console.log("Proof verification failed:");
       return Response.json({
-        status: 404,
+        status: 400,
         body: JSON.stringify({ verified: false }),
       });
     }
