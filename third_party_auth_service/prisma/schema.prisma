@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// aktualizacja bd
+// npx prisma generate
+//npx prisma db push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map(name: "email_verified")
+  password      String
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
+
+  @@map(name: "users")
+}
+
+model Proof {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  proofData     String        @map(name: "proof_data")
+  verificationDate DateTime   @map(name: "verification_date")
+  expirationDate   DateTime   @map(name: "expiration_date")
+  email          String  @unique
+  verifed        Boolean
+  @@map(name: "proofs")
+}
+
+model OneTimeCode {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  isOlderThan18   Boolean 
+  verified        Boolean
+  verificationDate DateTime   @map(name: "verification_date")
+  codeCreationDate DateTime   @map(name: "code_creation_date")
+  hasBeenUsed     Boolean     @map(name: "has_been_used")
+  email           String      @unique
+  code            String
+  @@map(name: "one_time_code")
+}

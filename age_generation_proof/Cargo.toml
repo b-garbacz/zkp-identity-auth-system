@@ -11,7 +11,6 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-
 getrandom = { version = "0.2.14", features = ["js"] }
 bls12_381 = "0.8.0"
 ff = "0.13.0"

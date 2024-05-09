@@ -1,3 +1,4 @@
+extern crate console_error_panic_hook;
 use bellman::{
     gadgets::{
         boolean::{AllocatedBit, Boolean},
@@ -16,8 +17,6 @@ use serde::{Deserialize, Serialize};
 use base64::{engine::general_purpose::URL_SAFE as base64Engine, Engine as BaseEngine};
 use concat_arrays::concat_arrays;
 use wasm_bindgen::prelude::*;
-
-extern crate console_error_panic_hook;
 use std::panic;
 
 
@@ -216,7 +215,6 @@ impl PersonalData {
         let personal_data_bytes = base64Engine.decode(personal_data_base64).unwrap();
         serde_json::from_slice(&personal_data_bytes)
     } 
-
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -317,7 +315,7 @@ mod tests {
 
     #[test]
     fn test_age_proof_generation() {
-        let base64_data = "ewogICJzdXJuYW1lIjoiIE5BWldJU0tPIiwKICAiZ2l2ZW5OYW1lcyI6IiBJTUlFIiwKICAiZmFtaWx5TmFtZSI6IiBOQVpXSVNLTyIsCiAgInBhcmVudHNOYW1lIjoiVEVTVCBURVNUIiwKICAiZGF0ZU9mQmlydGgiOjg5NTUyODgwMCwKICAiZGF0ZU9mSXNzdWUiOjE0NjM5NTQ0MDAsCiAgImV4cGlyeURhdGUiOjE3Nzk0ODcyMDAsCiAgInBlcnNvbmFsTnVtYmVyIjoiMTExMTExMTExMTEiLAogICJpZGVudGl0eUNhcmROdW1iZXIiOiJDQ0M0NDQ0NDQiCn0=";
+        let base64_data = "eyJzdXJuYW1lIjoiIEdBUkJBQ1oiLCJnaXZlbk5hbWVzIjoiIEJBUlTFgU9NSUVKIiwiZmFtaWx5TmFtZSI6IiBHQVJCQUNaIiwicGFyZW50c05hbWUiOiJNQVJJVVNaIEFOTkEiLCJkYXRlT2ZCaXJ0aCI6ODk1NTI4ODAwLCJkYXRlT2ZJc3N1ZSI6MTQ2Mzk1NDQwMCwiZXhwaXJ5RGF0ZSI6MTc3OTQ4NzIwMCwicGVyc29uYWxOdW1iZXIiOiI5ODA1MTkwNTkzMSIsImlkZW50aXR5Q2FyZE51bWJlciI6IkNDSjQ5NDI2MiJ9=";
         let result = age_proof_generation(base64_data);
         let decoded_user_data_proof = match base64Engine.decode(result.as_bytes()) {
             Ok(decoded) => decoded,
@@ -326,6 +324,7 @@ mod tests {
                 return;
             }
         };
+
         let deserialized_user_data_proof: Result<UserDataProof, _> = serde_json::from_slice(&decoded_user_data_proof);
         let user_data_proof = match deserialized_user_data_proof {
             Ok(user_data_proof) => user_data_proof,
@@ -335,7 +334,6 @@ mod tests {
             }
         };
 
-        // Dekodowanie danych z base64 do ciągów bajtów
         let decoded_proof = match base64Engine.decode(user_data_proof.proof.as_bytes()) {
             Ok(decoded) => decoded,
             Err(e) => {
@@ -378,7 +376,7 @@ mod tests {
 
         let inputs = [date_inputs, expiry_date_inputs, hash_inputs].concat();
         
-        // co potrzebuję do weryfikacji dowodu? pvk, proof oraz inputy. 
+        // co potrzebuję do weryfikacji dowodu? pvk, proof oraz inputy.
         assert!(groth16::verify_proof(&pvk2, &proofdecoded, &inputs).is_ok());   
         }
 }

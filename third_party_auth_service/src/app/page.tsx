@@ -1,46 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import cv from "@techstark/opencv-js";
 import { useEffect, useState } from "react";
 import { signIn, useSession, signOut } from "next-auth/react";
 import { processImages, recognizeTextFromImage } from "@/client/dataProcessing";
 import { convertToBase64, base64ToImageElement } from "@/client/base64";
 import * as verification from "@/client/idVerification";
-
 import { FrontID } from "@/client/frontID";
 import { BackID } from "@/client/backID";
-
-import dynamic from "next/dynamic";
-
 import init, { age_proof_generation } from "@/static/wasm/age_generation_proof";
+import { mergeIdInformation, PersonalData } from "@/client/personalData";
 
 export default function Home() {
   const { data } = useSession();
   const [showUploadFields, setShowUploadFields] = useState(false);
   const [filesUploaded, setFilesUploaded] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const handleCreateEvidence = () => {
     setShowUploadFields(true);
   };
 
-  useEffect(() => {
-    // (async () => {
-    //   const wasm = (await import("@/static/wasm/age_verification_proof"))
-    //     .default;
-
-    //   const { age_proof_generation } = wasm;
-
-    //   console.log(age_proof_generation);
-    // })();
-
-    console.log(age_proof_generation);
-  }, []);
+  async function fetchProof(proof: string, expiryDate: Number | null) {
+    try {
+      const email = data?.user?.email;
+      const response = await fetch("/api/proof", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          expiryDate: expiryDate,
+          proofOfUser: proof,
+        }),
+      });
+      setProcessing(false);
+    } catch (error) {
+      console.error("Error sending proof: ", error as string);
+      setProcessing(false);
+    }
+  }
 
   const OnProcess = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setShowUploadFields(false);
     setFilesUploaded(false);
+    setProcessing(true);
 
     const formData = new FormData(e.currentTarget);
     const frontFile = formData.get("frontID") as File;
@@ -63,22 +69,29 @@ export default function Home() {
       const frontIdObject: FrontID = new FrontID(frontIdText);
       const backIdObject: BackID = new BackID(backIdText);
 
-      console.log(frontIdObject.serialization());
-      console.log(backIdObject.serialization());
-
       if (verification.verifyFrontIdAndBackId(frontIdObject, backIdObject)) {
         throw new Error("Pictures of flow quality");
       }
+
+      const personelData: PersonalData = mergeIdInformation(
+        frontIdObject,
+        backIdObject
+      );
+
+      const bufferSerializedPersonalData = Buffer.from(
+        JSON.stringify(personelData)
+      );
+
+      let encodedData = bufferSerializedPersonalData.toString("base64");
+      let proof: string;
+
+      init().then(() => {
+        proof = age_proof_generation(encodedData);
+        fetchProof(proof, personelData.expiryDate);
+      });
     } catch (error) {
       console.error("Error processing files: ", error as string);
     }
-    const base64test: string =
-      "ewogICJzdXJuYW1lIjoiIE5BWldJU0tPIiwKICAiZ2l2ZW5OYW1lcyI6IiBJTUlFIiwKICAiZmFtaWx5TmFtZSI6IiBOQVpXSVNLTyIsCiAgInBhcmVudHNOYW1lIjoiVEVTVCBURVNUIiwKICAiZGF0ZU9mQmlydGgiOjg5NTUyODgwMCwKICAiZGF0ZU9mSXNzdWUiOjE0NjM5NTQ0MDAsCiAgImV4cGlyeURhdGUiOjE3Nzk0ODcyMDAsCiAgInBlcnNvbmFsTnVtYmVyIjoiMTExMTExMTExMTEiLAogICJpZGVudGl0eUNhcmROdW1iZXIiOiJDQ0M0NDQ0NDQiCn0=";
-
-    init().then(() => {
-      const res = age_proof_generation(base64test);
-      console.log(res);
-    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,7 +159,16 @@ export default function Home() {
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-none shadow-xl transition duration-150 ease-in-out w-full mt-4"
           >
-            Process Evidence
+            {processing ? (
+              // Warunkowe wyświetlanie kółka obok przycisku, jeśli proces jest w trakcie
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-200"></div>
+                <span className="ml-2">Processing...</span>
+              </div>
+            ) : (
+              // Jeśli proces nie jest w trakcie, wyświetl "Process Evidence"
+              "Process Evidence"
+            )}
           </button>
         )}
       </form>

@@ -24,7 +24,7 @@ export async function processImages(
   let backThreshold = new cv.Mat();
 
   //Denoising
-  let ksize = new cv.Size(5, 5);
+  let ksize = new cv.Size(5, 5); // kelner
   let sigmaX = 1.5;
   let sigmaY = 0.1;
   cv.GaussianBlur(

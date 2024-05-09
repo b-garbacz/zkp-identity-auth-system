@@ -1,7 +1,7 @@
 import { FrontID } from "./frontID";
 import { BackID } from "./backID";
 
-function calculateAge(dateOfBirth: number): boolean {
+function is_over_18(dateOfBirth: number): boolean {
   const currentDate = new Date();
   const birthDate = new Date(dateOfBirth * 1000);
   let age = currentDate.getFullYear() - birthDate.getFullYear();
@@ -43,8 +43,8 @@ export function verifyFrontIdAndBackId(
     return false;
   }
   if (
-    !calculateAge(frontId.getDateOfBirth() as number) ||
-    !calculateAge(backId.getDateOfBirth() as number)
+    !is_over_18(frontId.getDateOfBirth() as number) ||
+    !is_over_18(backId.getDateOfBirth() as number)
   ) {
     return false;
   }
