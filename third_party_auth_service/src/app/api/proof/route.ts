@@ -1,46 +1,63 @@
 import { prisma } from "@/services/prisma";
 import axios from "axios";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { enGB } from "date-fns/locale";
 
 //uzytkownik chce utworzyc proof
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
   try {
-    const { email, expiryDate, proofOfUser } = await request.json();
+    const { email, expiryDate, proofOfUser, dateOfBirth } =
+      await request.json();
     const response = await axios.post("http://localhost:8080/verify_zkp", {
       proofData: proofOfUser,
     });
 
     if (response.status === 200) {
+      const existingProof = await prisma.proof.findUnique({
+        where: { email: email },
+      });
+
+      if (existingProof) {
+        await prisma.proof.delete({
+          where: { id: existingProof.id },
+        });
+        console.log("Deleted existing proof:", existingProof);
+      }
+      const timeZone = "Europe/Warsaw";
+      const birthDateUtc = new Date(dateOfBirth * 1000);
+      const birthDatePl = toZonedTime(birthDateUtc, timeZone);
+
+      const expiryDateUtc = new Date(expiryDate * 1000);
+      const expiryDatePl = toZonedTime(expiryDateUtc, timeZone);
+
       const createdProof = await prisma.proof.create({
         data: {
           proofData: proofOfUser,
-          verificationDate: new Date(),
-          expirationDate: new Date(expiryDate * 1000),
+          verificationDate: toZonedTime(new Date(), timeZone),
+          dateOfBirth: birthDatePl,
+          expirationDate: expiryDatePl,
           email: email,
           verifed: true,
         },
       });
       console.log("Proof created:", createdProof);
 
-      return Response.json({
-        status: 201,
-        body: JSON.stringify({ verified: true }),
-      });
+      return new Response(JSON.stringify({ verified: true }), { status: 201 });
     } else {
-      console.log("Proof verification failed:");
-      return Response.json({
-        status: 400,
-        body: JSON.stringify({ verified: false }),
-      });
+      console.log("Weryfikacja dowodu nie powiodła się");
+      return new Response(JSON.stringify({ verified: false }), { status: 400 });
     }
   } catch (error) {
-    return Response.json({
-      status: 500,
-      body: JSON.stringify({
-        error: "Internal server error",
+    console.error("Błąd podczas przetwarzania:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Wewnętrzny błąd serwera",
       }),
-    });
+      { status: 500 }
+    );
   }
 }
+
 // uzytkownik chce usunąć proof - todo dodać ikonkę usuwania dowodu
 export async function DELETE(request: Request) {
   try {
@@ -82,7 +99,17 @@ export async function DELETE(request: Request) {
 // do kiedy jest ważny proof - todo pobierana jest dla uzytkownika data kiedy jego proof wygasnie
 export async function GET(request: Request) {
   try {
-    const { email } = await request.json();
+    
+    const url = new URL(request.url);
+    const email = url.searchParams.get("email");
+
+    if (!email) {
+      return new Response(
+        JSON.stringify({ message: "Email parameter is missing" }),
+        { status: 400 }
+      );
+    }
+
     const proof = await prisma.proof.findFirst({
       where: {
         email: email,

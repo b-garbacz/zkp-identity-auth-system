@@ -21,11 +21,15 @@ export default function Home() {
     setShowUploadFields(true);
   };
 
-  async function fetchProof(proof: string, expiryDate: Number | null) {
+  async function fetchProof(
+    proof: string,
+    expiryDate: Number | null,
+    dateOfBirth: Number | null
+  ) {
     try {
       const email = data?.user?.email;
       const response = await fetch("/api/proof", {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -33,6 +37,7 @@ export default function Home() {
           email: email,
           expiryDate: expiryDate,
           proofOfUser: proof,
+          dateOfBirth: dateOfBirth,
         }),
       });
       setProcessing(false);
@@ -87,7 +92,7 @@ export default function Home() {
 
       init().then(() => {
         proof = age_proof_generation(encodedData);
-        fetchProof(proof, personelData.expiryDate);
+        fetchProof(proof, personelData.expiryDate, personelData.dateOfBirth);
       });
     } catch (error) {
       console.error("Error processing files: ", error as string);

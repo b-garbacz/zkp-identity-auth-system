@@ -29,23 +29,24 @@ model User {
 }
 
 model Proof {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
-  proofData     String        @map(name: "proof_data")
-  verificationDate DateTime   @map(name: "verification_date")
-  expirationDate   DateTime   @map(name: "expiration_date")
-  email          String  @unique
-  verifed        Boolean
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  proofData         String        @map(name: "proof_data")
+  verificationDate  DateTime   @map(name: "verification_date")
+  dateOfBirth       DateTime    @map(name: "date_of_birth")
+  expirationDate    DateTime   @map(name: "expiration_date")
+  email             String  @unique
+  verifed           Boolean
   @@map(name: "proofs")
 }
 
-model OneTimeCode {
-  id              String      @id @default(auto()) @map("_id") @db.ObjectId
-  isOlderThan18   Boolean 
-  verified        Boolean
-  verificationDate DateTime   @map(name: "verification_date")
-  codeCreationDate DateTime   @map(name: "code_creation_date")
-  hasBeenUsed     Boolean     @map(name: "has_been_used")
-  email           String      @unique
-  code            String
-  @@map(name: "one_time_code")
+model AttestationToken {
+  id                      String      @id @default(auto()) @map("_id") @db.ObjectId
+  isOlderThan18           Boolean 
+  verified                Boolean
+  verificationDate        DateTime   @map(name: "verification_date")
+  dateOfBirth             DateTime    @map(name: "date_of_birth")
+  attestationCreationDate DateTime   @map(name: "attestation_creation_date")
+  email                   String      @unique
+  @@map(name: "attestaion_token")
 }
+
