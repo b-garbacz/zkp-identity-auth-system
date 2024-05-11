@@ -44,14 +44,13 @@ export async function POST(request: Request) {
 
       return new Response(JSON.stringify({ verified: true }), { status: 201 });
     } else {
-      console.log("Weryfikacja dowodu nie powiodła się");
+      console.log("Proof verification failed");
       return new Response(JSON.stringify({ verified: false }), { status: 400 });
     }
   } catch (error) {
-    console.error("Błąd podczas przetwarzania:", error);
     return new Response(
       JSON.stringify({
-        error: "Wewnętrzny błąd serwera",
+        error: "Internal server error",
       }),
       { status: 500 }
     );
@@ -102,6 +101,7 @@ export async function GET(request: Request) {
     
     const url = new URL(request.url);
     const email = url.searchParams.get("email");
+    const type = url.searchParams.get("type");
 
     if (!email) {
       return new Response(
@@ -109,36 +109,68 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
+    
+    if (!type) {
+      return new Response(
+        JSON.stringify({ message: "Type parameter is missing" }),
+        { status: 400 }
+      );
+    }
 
-    const proof = await prisma.proof.findFirst({
-      where: {
-        email: email,
-      },
-    });
+    if (type === "expiry"){
+      const proof = await prisma.proof.findFirst({
+        where: {
+          email: email,
+        },
+      });
+  
+      if (!proof) {
+        return Response.json({
+          status: 404,
+          body: JSON.stringify({
+            message: "Proof does not exists",
+          }),
+        });
+      }
+      const expirationDate = new Date(proof.expirationDate);
+      const day = expirationDate.getDate().toString().padStart(2, "0");
+      const month = (expirationDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = expirationDate.getFullYear();
+      const expirationDateString = `${day}/${month}/${year}`;
 
-    if (!proof) {
       return Response.json({
-        status: 404,
-        body: JSON.stringify({
-          message: "Proof does not exists",
-        }),
+        status: 200,
+        body: JSON.stringify({ expirationDate: expirationDateString }),
+      });
+
+    } else if (type === "status") {
+
+      const proof = await prisma.proof.findFirst({
+        where: {
+          email: email,
+        },
+      });
+  
+      if (!proof) {
+        return Response.json({
+          status: 404,
+          body: JSON.stringify({
+            message: "Proof does not exists",
+          }),
+        });
+      }
+
+      return Response.json({
+        status: 200,
+        body: JSON.stringify({ message: "Proof exists" }),
       });
     }
-    const expirationDate = new Date(proof.expirationDate);
-    const day = expirationDate.getDate().toString().padStart(2, "0");
-    const month = (expirationDate.getMonth() + 1).toString().padStart(2, "0");
-    const year = expirationDate.getFullYear();
-    const expirationDateString = `${day}/${month}/${year}`;
 
-    return Response.json({
-      status: 200,
-      body: JSON.stringify({ expirationDate: expirationDateString }),
-    });
   } catch (error) {
     console.error("Error:", error);
     return Response.json({
       status: 500,
-      body: JSON.stringify({ error: "Wystąpił wewnętrzny błąd serwera." }),
+      body: JSON.stringify({ error: "Internal server error" }),
     });
   }
 }
