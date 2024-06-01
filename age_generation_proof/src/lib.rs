@@ -51,7 +51,6 @@ struct AgeVerificationCircuit{
 impl<Scalar: PrimeField> Circuit<Scalar> for AgeVerificationCircuit {
     fn synthesize<CS: ConstraintSystem<Scalar>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
 
-        //Mapping to bits
         let date_of_birth_values = if let Some(date_of_birth) = self.date_of_birth {
             date_of_birth
                 .into_iter()
@@ -100,8 +99,6 @@ impl<Scalar: PrimeField> Circuit<Scalar> for AgeVerificationCircuit {
         };
         assert_eq!(identity_card_number_values.len(), 10 * 8);
         
-        //Bit allocation
-
         let date_of_birth_bits = date_of_birth_values
             .into_iter()
             .enumerate()
@@ -110,7 +107,6 @@ impl<Scalar: PrimeField> Circuit<Scalar> for AgeVerificationCircuit {
             })
             .map(|b| b.map(Boolean::from))
             .collect::<Result<Vec<_>, _>>()?;
-
 
         let expiry_date_bits = expiry_date_values
             .into_iter()
@@ -139,19 +135,16 @@ impl<Scalar: PrimeField> Circuit<Scalar> for AgeVerificationCircuit {
             .map(|b| b.map(Boolean::from))
             .collect::<Result<Vec<_>, _>>()?;
 
-        // make date of birth and expiry date as public inputs
+        
         multipack::pack_into_inputs(cs.namespace(|| "date_of_birth_bits"), &date_of_birth_bits)?;
         multipack::pack_into_inputs(cs.namespace(|| "expiry_date_bits"), &expiry_date_bits)?;
-
-
-        // bit concatenation
+       
         let combined_bits:Vec<_> =  date_of_birth_bits.into_iter().chain(
             expiry_date_bits.into_iter().chain(
                 personal_number_bits.into_iter().chain(
                     identity_card_number_bits.into_iter())))
             .collect();
         
-
         let hash = sha256circut(cs.namespace(|| "SHA-256d(preimage)"), &combined_bits)?;
 
         multipack::pack_into_inputs(cs.namespace(|| "pack hash"), &hash)       
@@ -315,7 +308,7 @@ mod tests {
 
     #[test]
     fn test_age_proof_generation() {
-        let base64_data = "eyJzdXJuYW1lIjoiIEdBUkJBQ1oiLCJnaXZlbk5hbWVzIjoiIEJBUlTFgU9NSUVKIiwiZmFtaWx5TmFtZSI6IiBHQVJCQUNaIiwicGFyZW50c05hbWUiOiJNQVJJVVNaIEFOTkEiLCJkYXRlT2ZCaXJ0aCI6ODk1NTI4ODAwLCJkYXRlT2ZJc3N1ZSI6MTQ2Mzk1NDQwMCwiZXhwaXJ5RGF0ZSI6MTc3OTQ4NzIwMCwicGVyc29uYWxOdW1iZXIiOiI5ODA1MTkwNTkzMSIsImlkZW50aXR5Q2FyZE51bWJlciI6IkNDSjQ5NDI2MiJ9=";
+        let base64_data = "ewogICJzdXJuYW1lIjoiIE5BWldJU0tPIiwKICAiZ2l2ZW5OYW1lcyI6IiBJTUlFIiwKICAiZmFtaWx5TmFtZSI6IiBOQVpXSVNLTyIsCiAgInBhcmVudHNOYW1lIjoiVEVTVCBURVNUIiwKICAiZGF0ZU9mQmlydGgiOjg5NTUyODgwMCwKICAiZGF0ZU9mSXNzdWUiOjE0NjM5NTQ0MDAsCiAgImV4cGlyeURhdGUiOjE3Nzk0ODcyMDAsCiAgInBlcnNvbmFsTnVtYmVyIjoiMTExMTExMTExMTEiLAogICJpZGVudGl0eUNhcmROdW1iZXIiOiJDQ0M0NDQ0NDQiCn0=";
         let result = age_proof_generation(base64_data);
         let decoded_user_data_proof = match base64Engine.decode(result.as_bytes()) {
             Ok(decoded) => decoded,

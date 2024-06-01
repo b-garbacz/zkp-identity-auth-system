@@ -25,6 +25,8 @@ export async function POST(request: Request) {
       }
       const timeZone = "Europe/Warsaw";
       const birthDateUtc = new Date(dateOfBirth * 1000);
+      birthDateUtc.setHours(birthDateUtc.getHours() + 2);
+      birthDateUtc.setSeconds(birthDateUtc.getSeconds() + 1);
       const birthDatePl = toZonedTime(birthDateUtc, timeZone);
 
       const expiryDateUtc = new Date(expiryDate * 1000);

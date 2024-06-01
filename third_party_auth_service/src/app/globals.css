@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+*:focus-visible {
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: rgb(129, 140, 248, 75%);
+  outline-offset: 2px;
+}

@@ -159,21 +159,21 @@ fn zkp_verification(encoded: &str) -> bool {
             .map(|i| u8::from_str_radix(&user_data_proof.hash[i..i+2], 16).unwrap())
             .collect();
         
-        let hash_bits = multipack::bytes_to_bits_le(&hash_bytes);
-        let hash_inputs = multipack::compute_multipacking(&hash_bits);
+    let hash_bits = multipack::bytes_to_bits_le(&hash_bytes);
+    let hash_inputs = multipack::compute_multipacking(&hash_bits);
 
 
-        let birthdate = i64_to_byte_array(user_data_proof.date_of_birth);
-        let birthdate_bits = multipack::bytes_to_bits_le(&birthdate);
-        let birthdate_inputs = multipack::compute_multipacking(&birthdate_bits);
+    let birthdate = i64_to_byte_array(user_data_proof.date_of_birth);
+    let birthdate_bits = multipack::bytes_to_bits_le(&birthdate);
+    let birthdate_inputs = multipack::compute_multipacking(&birthdate_bits);
 
-        let expiry_date = i64_to_byte_array(user_data_proof.expiry_date);
-        let expiry_date_bits = multipack::bytes_to_bits_le(&expiry_date);
-        let expiry_date_inputs = multipack::compute_multipacking(&expiry_date_bits);
+    let expiry_date = i64_to_byte_array(user_data_proof.expiry_date);
+    let expiry_date_bits = multipack::bytes_to_bits_le(&expiry_date);
+    let expiry_date_inputs = multipack::compute_multipacking(&expiry_date_bits);
 
-        let inputs = [birthdate_inputs, expiry_date_inputs, hash_inputs].concat();
-        
-        groth16::verify_proof(&pvk, &proofdecoded, &inputs).is_ok()
+    let inputs = [birthdate_inputs, expiry_date_inputs, hash_inputs].concat();
+    
+    groth16::verify_proof(&pvk, &proofdecoded, &inputs).is_ok()
 }
 
 #[derive(Serialize, Deserialize, Debug)]

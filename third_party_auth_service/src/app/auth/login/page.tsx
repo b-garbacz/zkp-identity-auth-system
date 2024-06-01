@@ -15,7 +15,6 @@ export default function Register() {
   const { data } = useSession();
 
   useEffect(() => {
-    console.log(data);
     if (data?.user) {
       push('/');
     }
@@ -29,7 +28,7 @@ export default function Register() {
     const data = Object.fromEntries(formData);
 
     // @ts-ignore
-    signIn('signup', { ...data, callbackUrl: '/', redirect: false }).then(({ ok }) => {
+    signIn('login', { ...data, callbackUrl: '/', redirect: false }).then(({ ok }) => {
       setLoading(false);
 
       if (!ok) return open();
@@ -42,8 +41,8 @@ export default function Register() {
       {isOpen && <Toast message="The username or password you entered is incorrect." type="error" onClose={close} />}
       <form onSubmit={onSubmit} className="p-6 bg-slate-900 border-t border-white/5 rounded-2xl shadow-lg max-w-md w-full flex flex-col gap-5">
         <div className="text-white">
-          <h2 className="text-2xl font-semibold">Get's started</h2>
-          <span className="text-slate-300">Create your account. It's free and only takes a minute.</span>
+          <h2 className="text-2xl font-semibold">Hello Again!</h2>
+          <span className="text-slate-300">For the purpose of industry regulation, your details are required.</span>
         </div>
         <div className="flex flex-col gap-2">
           <label className="flex flex-col gap-1 text-white" htmlFor="email">
@@ -74,12 +73,12 @@ export default function Register() {
             type="submit"
             className="w-full bg-indigo-600 text-white px-4 py-2 rounded-md border-l border-t border-r border-white/10 font-medium bg-gradient-to-t from-indigo-500 to-indigo-600 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Create Account
+            Login
           </button>
-          <span className="text-white cursor-pointer">
-            Already have an account?{' '}
-            <Link href={'/auth/login'} className="text-yellow-400 rounded-sm">
-              Sign In
+          <span className="text-white">
+            Don't have an account?{' '}
+            <Link href={'/auth/register'} className="text-yellow-400 rounded-sm">
+              Sign Up
             </Link>
           </span>
         </div>
